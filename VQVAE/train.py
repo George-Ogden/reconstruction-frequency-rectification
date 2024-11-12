@@ -6,10 +6,10 @@ import random
 import torch
 import torch.backends.cudnn as cudnn
 import torchvision.utils as vutils
-from torchvision.models import ResNet50_Weights
 from tqdm import tqdm
+from torchvision.models import ResNet50_Weights
 
-from models import VanillaAE
+from models import EncoderDecoder
 from utils import get_dataloader, print_and_write_log, set_random_seed
 
 
@@ -24,7 +24,7 @@ parser.add_argument('--imageSize', type=int, default=64, help='the height / widt
 parser.add_argument('--nz', type=int, default=256, help='dimension of the latent layers')
 parser.add_argument('--nblk', type=int, default=2, help='number of blocks')
 parser.add_argument('--nepoch', type=int, default=20, help='number of epochs to train')
-parser.add_argument('--lr', type=float, default=0.001, help='learning rate, default=0.001')
+parser.add_argument('--lr', type=float, default=3e-4, help='learning rate, default=0.001')
 parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam. default=0.9')
 parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for adam. default=0.999')
 parser.add_argument('--no_cuda', action='store_true', help='not enable cuda (if use CPU only)')
@@ -40,18 +40,20 @@ parser.add_argument('--ckpt_save_epoch', type=int, default=1, help='checkpoint s
 # losses
 parser.add_argument('--mse_w', type=float, default=1.0, help='weight for mse (L2) spatial loss')
 parser.add_argument('--ffl_w', type=float, default=0.0, help='weight for focal frequency loss')
+parser.add_argument('--latent_w', type=float, default=0.25, help='weight for latent loss')
 parser.add_argument('--alpha', type=float, default=1.0, help='the scaling factor alpha of the spectrum weight matrix for flexibility')
 parser.add_argument('--patch_factor', type=int, default=1, help='the factor to crop image patches for patch-based focal frequency loss')
 parser.add_argument('--ave_spectrum', action='store_true', help='whether to use minibatch average spectrum')
 parser.add_argument('--log_matrix', action='store_true', help='whether to adjust the spectrum weight matrix by logarithm')
 parser.add_argument('--batch_matrix', action='store_true', help='whether to calculate the spectrum weight matrix using batch-based statistics')
 parser.add_argument('--freq_start_epoch', type=int, default=1, help='the start epoch to add focal frequency loss')
-parser.add_argument('--cnn_loss_w0', type=float, help='weight to use for the early layer CNN loss', required=True)
-parser.add_argument('--cnn_loss_w1', type=float, help='weight to use for the mid layer CNN loss', required=True)
+parser.add_argument('--cnn_loss_w0', type=float, help='weight to use for the early layer CNN loss', default=0.0)
+parser.add_argument('--cnn_loss_w1', type=float, help='weight to use for the mid layer CNN loss', default=0.0)
 
 opt = parser.parse_args()
 opt.is_train = True
 
+opt.resnet_weights = ResNet50_Weights.IMAGENET1K_V2
 
 os.makedirs(os.path.join(opt.expf, 'images'), exist_ok=True)
 os.makedirs(os.path.join(opt.expf, 'checkpoints'), exist_ok=True)
@@ -69,13 +71,12 @@ set_random_seed(opt.manualSeed)
 if torch.cuda.is_available() and opt.no_cuda:
     print_and_write_log(train_log_file, "WARNING: You have a CUDA device, so you should probably run without --no_cuda")
 
-opt.resnet_weights = ResNet50_Weights.IMAGENET1K_V2
 dataloader, nc = get_dataloader(opt)
 opt.nc = nc
 
 print_and_write_log(train_log_file, opt)
 
-model = VanillaAE(opt)
+model = EncoderDecoder(opt)
 
 num_epochs = opt.nepoch
 iters = 0
@@ -88,13 +89,13 @@ for epoch in tqdm(range(1, num_epochs + 1)):
             data = img
 
         # main training code
-        errG_pix, errG_freq, errG_cnn = model.gen_update(data, epoch, matrix)
+        errG_pix, errG_freq, latent_loss, errG_cnn = model.gen_update(data, epoch, matrix)
 
         # logs
         if i % opt.log_iter == 0:
             print_and_write_log(train_log_file,
-                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f LossCNN: %.10f' %
-                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item(), errG_cnn.item()))
+                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f LossLatent %.10f LossCNN %.10f' %
+                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item(), latent_loss.item(), errG_cnn.item()))
 
         # write images for visualization
         if (iters % opt.visualize_iter == 0) or ((epoch == num_epochs) and (i == len(dataloader) - 1)):

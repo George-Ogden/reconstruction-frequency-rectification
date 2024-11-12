@@ -6,11 +6,11 @@ VERSION='celeba_recon_w_ffl'
 DATA='filelist'
 DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/test.txt'
-EXP_DIR='./VanillaAE/experiments/'$VERSION
-RES_DIR='./VanillaAE/results/'$VERSION
+EXP_DIR='./VQVAE/experiments/'$VERSION
+RES_DIR='./VQVAE/results/'$VERSION
 WORKER=0
 
-python ./VanillaAE/test.py \
+python ./VQVAE/test.py \
     --dataset $DATA \
     --dataroot $DATAROOT \
     --datalist $DATALIST \

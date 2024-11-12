@@ -6,6 +6,7 @@ import torch
 import torch.nn.init as init
 import torch.utils.data
 import torchvision.transforms as transforms
+from torchvision.models import ResNet50_Weights
 
 from data import ImageFolderAll, ImageFilelist, ImagePairFilelist
 

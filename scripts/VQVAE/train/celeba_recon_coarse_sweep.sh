@@ -6,12 +6,12 @@ VERSION='coarse-weight-sweep'
 DATA='filelist'
 DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/train.txt'
-EXP_DIR='./VanillaAE/experiments/'$VERSION
-WORKERS=4
+EXP_DIR='./VQVAE/experiments/'$VERSION
+WORKERS=8
 
 for W0 in 0.001 0.01 0.1; do
     for W1 in 0.001 0.01 0.1 1 10; do
-        python ./VanillaAE/train.py \
+        python ./VQVAE/train.py \
             --dataset $DATA \
             --dataroot $DATAROOT \
             --datalist $DATALIST \

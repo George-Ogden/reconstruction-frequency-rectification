@@ -15,7 +15,7 @@ python ./VanillaAE/train.py \
     --datalist $DATALIST \
     --workers $WORKER \
     --batchSize 128 \
-    --imageSize 64 \
+    --imageSize 224 \
     --nz 256 \
     --nblk 2 \
     --nepoch 20 \

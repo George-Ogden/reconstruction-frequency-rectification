@@ -46,6 +46,8 @@ parser.add_argument('--ave_spectrum', action='store_true', help='whether to use 
 parser.add_argument('--log_matrix', action='store_true', help='whether to adjust the spectrum weight matrix by logarithm')
 parser.add_argument('--batch_matrix', action='store_true', help='whether to calculate the spectrum weight matrix using batch-based statistics')
 parser.add_argument('--freq_start_epoch', type=int, default=1, help='the start epoch to add focal frequency loss')
+parser.add_argument('--cnn_loss_w0', type=float, help='weight to use for the early layer CNN loss', required=True)
+parser.add_argument('--cnn_loss_w1', type=float, help='weight to use for the mid layer CNN loss', required=True)
 
 opt = parser.parse_args()
 opt.is_train = True

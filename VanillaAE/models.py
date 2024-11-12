@@ -43,6 +43,7 @@ class VanillaAE(nn.Module):
                                   ave_spectrum=opt.ave_spectrum,
                                   log_matrix=opt.log_matrix,
                                   batch_matrix=opt.batch_matrix).to(self.device)
+        self.cnn_loss_ws = opt.cnn_loss_w0, opt.cnn_loss_w1
         self.resnet = resnet50(weights=opt.resnet_weights)
 
         # misc
@@ -54,10 +55,22 @@ class VanillaAE(nn.Module):
     def forward(self):
         pass
 
+    def forward_resnet(self, x):
+        early_features = self.resnet.conv1(x)
+        x = self.resnet.bn1(early_features)
+        x = self.resnet.relu(x)
+        x = self.resnet.maxpool(x)
+
+        mid_features = self.resnet.layer1(x)
+        return early_features, mid_features
+
     def criterion_cnn(self, recon, real):
-        recon_features = self.resnet.conv1(recon)
-        real_features = self.resnet.conv1(real)
-        return F.mse_loss(recon_features, real_features)
+        recon_early_features, recon_mid_features = self.forward_resnet(recon)
+        real_early_features, real_mid_features = self.forward_resnet(real)
+
+        early_loss_w, mid_loss_w = self.cnn_loss_ws
+        
+        return F.mse_loss(recon_early_features, real_early_features) * early_loss_w + F.mse_loss(recon_mid_features, real_mid_features) * mid_loss_w
 
     def gen_update(self, data, epoch, matrix=None):
         self.netG.zero_grad()

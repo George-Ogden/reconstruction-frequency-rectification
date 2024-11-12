@@ -2,21 +2,21 @@
 
 set -x
 
-VERSION='celeba_recon_j_ffl'
+VERSION='celeba_recon_wo_ffl'
 DATA='filelist'
 DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/test.txt'
-EXP_DIR='./VanillaAE/experiments/'$VERSION
-RES_DIR='./VanillaAE/results/'$VERSION
+EXP_DIR='./VQVAE/experiments/'$VERSION
+RES_DIR='./VQVAE/results/'$VERSION
 WORKER=0
 
-python ./VanillaAE/test.py \
+python ./VQVAE/test.py \
     --dataset $DATA \
     --dataroot $DATAROOT \
     --datalist $DATALIST \
     --workers $WORKER \
     --batchSize 1 \
-    --imageSize 64 \
+    --imageSize 224 \
     --nz 256 \
     --nblk 2 \
     --expf $EXP_DIR \

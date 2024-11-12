@@ -6,16 +6,16 @@ VERSION='celeba_recon_wo_ffl'
 DATA='filelist'
 DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/train.txt'
-EXP_DIR='./VanillaAE/experiments/'$VERSION
+EXP_DIR='./VQVAE/experiments/'$VERSION
 WORKER=8
 
-python ./VanillaAE/train.py \
+python ./VQVAE/train.py \
     --dataset $DATA \
     --dataroot $DATAROOT \
     --datalist $DATALIST \
     --workers $WORKER \
     --batchSize 128 \
-    --imageSize 64 \
+    --imageSize 224 \
     --nz 256 \
     --nblk 2 \
     --nepoch 20 \

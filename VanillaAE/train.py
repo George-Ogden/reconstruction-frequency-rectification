@@ -86,13 +86,13 @@ for epoch in tqdm(range(1, num_epochs + 1)):
             data = img
 
         # main training code
-        errG_pix, errG_freq = model.gen_update(data, epoch, matrix)
+        errG_pix, errG_freq, errG_cnn = model.gen_update(data, epoch, matrix)
 
         # logs
         if i % opt.log_iter == 0:
             print_and_write_log(train_log_file,
-                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f' %
-                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item()))
+                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f LossCNN: %.10f' %
+                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item(), errG_cnn.item()))
 
         # write images for visualization
         if (iters % opt.visualize_iter == 0) or ((epoch == num_epochs) and (i == len(dataloader) - 1)):

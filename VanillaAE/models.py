@@ -51,6 +51,9 @@ class VanillaAE(nn.Module):
     def forward(self):
         pass
 
+    def criterion_cnn(self, recon, real):
+        return torch.zeros((), requires_grad=True)
+
     def gen_update(self, data, epoch, matrix=None):
         self.netG.zero_grad()
         real = data.to(self.device)
@@ -66,12 +69,15 @@ class VanillaAE(nn.Module):
             errG_freq = self.criterion_freq(recon, real, matrix)
         else:
             errG_freq = torch.tensor(0.0).to(self.device)
+        
+        # apply CNN loss
+        errG_cnn = self.criterion_cnn(recon, real)
 
-        errG = errG_pix + errG_freq
+        errG = errG_pix + errG_freq + errG_cnn
         errG.backward()
         self.optimizerG.step()
 
-        return errG_pix, errG_freq
+        return errG_pix, errG_freq, errG_cnn
 
     def sample(self, x):
         x = x.to(self.device)

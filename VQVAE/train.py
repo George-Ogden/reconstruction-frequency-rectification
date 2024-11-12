@@ -8,7 +8,7 @@ import torch.backends.cudnn as cudnn
 import torchvision.utils as vutils
 from tqdm import tqdm
 
-from models import VanillaAE
+from models import EncoderDecoder
 from utils import get_dataloader, print_and_write_log, set_random_seed
 
 
@@ -72,7 +72,7 @@ opt.nc = nc
 
 print_and_write_log(train_log_file, opt)
 
-model = VanillaAE(opt)
+model = EncoderDecoder(opt)
 
 num_epochs = opt.nepoch
 iters = 0

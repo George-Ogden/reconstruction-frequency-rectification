@@ -5,23 +5,24 @@ set -x
 VERSION='celeba_recon_wo_ffl'
 DATA='filelist'
 DATAROOT='./datasets/celeba'
-DATALIST='./datasets/celeba_recon_lists/test.txt'
-EXP_DIR='./VanillaAE/experiments/'$VERSION
-RES_DIR='./VanillaAE/results/'$VERSION
-WORKER=0
+DATALIST='./datasets/celeba_recon_lists/train.txt'
+EXP_DIR='./VQVAE/experiments/'$VERSION
+WORKER=8
 
-python ./VanillaAE/test.py \
+python ./VQVAE/train.py \
     --dataset $DATA \
     --dataroot $DATAROOT \
     --datalist $DATALIST \
     --workers $WORKER \
-    --batchSize 1 \
+    --batchSize 128 \
     --imageSize 224 \
     --nz 256 \
     --nblk 2 \
+    --nepoch 20 \
     --expf $EXP_DIR \
     --manualSeed 1112 \
-    --epoch_test 20 \
-    --eval \
-    --resf $RES_DIR \
-    --show_input
+    --log_iter 50 \
+    --visualize_iter 500 \
+    --ckpt_save_epoch 1 \
+    --mse_w 1.0 \
+    --ffl_w 0.0

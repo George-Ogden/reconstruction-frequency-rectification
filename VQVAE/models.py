@@ -243,13 +243,12 @@ class VQVAE(nn.Module):
         return dec
 
 
-class VanillaAE(nn.Module):
+class EncoderDecoder(nn.Module):
     def __init__(self, opt):
-        super(VanillaAE, self).__init__()
+        super().__init__()
         self.opt = opt
         self.device = torch.device("cuda:0" if not opt.no_cuda else "cpu")
         nc = int(opt.nc)
-        imageSize = int(opt.imageSize)
         nz = int(opt.nz)
         nblk = int(opt.nblk)
         self.netG = VQVAE(n_embed=nz, n_res_block=nblk, in_channel=nc).to(self.device)

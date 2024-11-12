@@ -6,12 +6,8 @@ import torch
 import torch.nn.init as init
 import torch.utils.data
 import torchvision.transforms as transforms
-from torchvision.models import ResNet50_Weights
 
 from data import ImageFolderAll, ImageFilelist, ImagePairFilelist
-
-weights = ResNet50_Weights.IMAGENET1K_V1
-transform = weights.transforms()
 
 def get_dataloader(opt):
     if opt.dataroot is None:
@@ -32,7 +28,7 @@ def get_dataloader(opt):
         assert opt.imageSize == 224
         dataset = ImageFilelist(root=opt.dataroot,
                                 flist=opt.datalist,
-                                transform=transform,
+                                transform=opt.resnet_weights.transforms(),
                                 return_paths=not opt.is_train)
         nc = 3
     elif opt.dataset == 'pairfilelist':

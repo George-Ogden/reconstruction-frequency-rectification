@@ -6,6 +6,7 @@ import random
 import torch
 import torch.backends.cudnn as cudnn
 import torchvision.utils as vutils
+from torchvision.models import ResNet50_Weights
 from tqdm import tqdm
 
 from models import VanillaAE
@@ -66,6 +67,7 @@ set_random_seed(opt.manualSeed)
 if torch.cuda.is_available() and opt.no_cuda:
     print_and_write_log(train_log_file, "WARNING: You have a CUDA device, so you should probably run without --no_cuda")
 
+opt.resnet_weights = ResNet50_Weights.IMAGENET1K_V1
 dataloader, nc = get_dataloader(opt)
 opt.nc = nc
 

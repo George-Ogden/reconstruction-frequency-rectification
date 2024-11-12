@@ -10,6 +10,26 @@ from torchvision.models import resnet50
 from networks import MLP
 from utils import print_and_write_log, weights_init
 
+class ResNetSubset(nn.Module):
+    def __init__(self, resnet):
+        super().__init__()
+        self.conv1 = resnet.conv1
+        self.bn1 = resnet.bn1
+        self.relu = resnet.relu
+        self.maxpool = resnet.maxpool
+        self.layer1 = resnet.layer1
+
+        for param in self.parameters():
+            param.requires_grad_(False)
+    
+    def forward(self, x):
+        early_features = self.conv1(x)
+        x = self.bn1(early_features)
+        x = self.relu(x)
+        x = self.maxpool(x)
+
+        mid_features = self.layer1(x)
+        return early_features, mid_features
 
 class VanillaAE(nn.Module):
     def __init__(self, opt):
@@ -44,7 +64,7 @@ class VanillaAE(nn.Module):
                                   log_matrix=opt.log_matrix,
                                   batch_matrix=opt.batch_matrix).to(self.device)
         self.cnn_loss_ws = opt.cnn_loss_w0, opt.cnn_loss_w1
-        self.resnet = resnet50(weights=opt.resnet_weights)
+        self.resnet = ResNetSubset(resnet50(weights=opt.resnet_weights))
 
         # misc
         self.to(self.device)
@@ -55,18 +75,9 @@ class VanillaAE(nn.Module):
     def forward(self):
         pass
 
-    def forward_resnet(self, x):
-        early_features = self.resnet.conv1(x)
-        x = self.resnet.bn1(early_features)
-        x = self.resnet.relu(x)
-        x = self.resnet.maxpool(x)
-
-        mid_features = self.resnet.layer1(x)
-        return early_features, mid_features
-
     def criterion_cnn(self, recon, real):
-        recon_early_features, recon_mid_features = self.forward_resnet(recon)
-        real_early_features, real_mid_features = self.forward_resnet(real)
+        recon_early_features, recon_mid_features = self.resnet(recon)
+        real_early_features, real_mid_features = self.resnet(real)
 
         early_loss_w, mid_loss_w = self.cnn_loss_ws
         

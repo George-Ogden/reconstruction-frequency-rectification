@@ -16,7 +16,7 @@ python ./VanillaAE/test.py \
     --datalist $DATALIST \
     --workers $WORKER \
     --batchSize 1 \
-    --imageSize 64 \
+    --imageSize 224 \
     --nz 256 \
     --nblk 2 \
     --expf $EXP_DIR \

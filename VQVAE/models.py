@@ -289,7 +289,8 @@ class EncoderDecoder(nn.Module):
                                   patch_factor=opt.patch_factor,
                                   ave_spectrum=opt.ave_spectrum,
                                   log_matrix=opt.log_matrix,
-                                  batch_matrix=opt.batch_matrix).to(self.device)
+                                  batch_matrix=opt.batch_matrix).to(self.device) if opt.ffl_w != 0 else (
+                                        lambda tensor, *tensors: torch.zeros((), device=tensor.device, dtype=tensor.dtype))
         self.cnn_loss_ws = float(opt.cnn_loss_w0), float(opt.cnn_loss_w1)
         self.resnet = ResNetSubset(resnet50(weights=opt.resnet_weights))
 
@@ -303,10 +304,12 @@ class EncoderDecoder(nn.Module):
         pass
 
     def criterion_cnn(self, recon, real):
+        early_loss_w, mid_loss_w = self.cnn_loss_ws
+        if early_loss_w == 0.0 and mid_loss_w == 0.0:
+            return torch.zeros((), dtype=recon.dtype, device=recon.device)
+
         recon_early_features, recon_mid_features = self.resnet(recon)
         real_early_features, real_mid_features = self.resnet(real)
-
-        early_loss_w, mid_loss_w = self.cnn_loss_ws
         
         return F.mse_loss(recon_early_features, real_early_features) * early_loss_w + F.mse_loss(recon_mid_features, real_mid_features) * mid_loss_w
 

@@ -3,7 +3,9 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 from focal_frequency_loss import FocalFrequencyLoss as FFL
+from torchvision.models import resnet50
 
 from networks import MLP
 from utils import print_and_write_log, weights_init
@@ -41,6 +43,7 @@ class VanillaAE(nn.Module):
                                   ave_spectrum=opt.ave_spectrum,
                                   log_matrix=opt.log_matrix,
                                   batch_matrix=opt.batch_matrix).to(self.device)
+        self.resnet = resnet50(weights=opt.resnet_weights)
 
         # misc
         self.to(self.device)
@@ -52,7 +55,9 @@ class VanillaAE(nn.Module):
         pass
 
     def criterion_cnn(self, recon, real):
-        return torch.zeros((), requires_grad=True)
+        recon_features = self.resnet.conv1(recon)
+        real_features = self.resnet.conv1(real)
+        return F.mse_loss(recon_features, real_features)
 
     def gen_update(self, data, epoch, matrix=None):
         self.netG.zero_grad()

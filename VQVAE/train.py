@@ -46,6 +46,7 @@ parser.add_argument('--ave_spectrum', action='store_true', help='whether to use 
 parser.add_argument('--log_matrix', action='store_true', help='whether to adjust the spectrum weight matrix by logarithm')
 parser.add_argument('--batch_matrix', action='store_true', help='whether to calculate the spectrum weight matrix using batch-based statistics')
 parser.add_argument('--freq_start_epoch', type=int, default=1, help='the start epoch to add focal frequency loss')
+parser.add_argument('--wavelet_w', type=float, default=0.0, help='Wavelet loss weight')
 
 opt = parser.parse_args()
 opt.is_train = True
@@ -85,13 +86,13 @@ for epoch in tqdm(range(1, num_epochs + 1)):
             data = img
 
         # main training code
-        errG_pix, errG_freq, latent_loss = model.gen_update(data, epoch, matrix)
+        errG_pix, errG_freq, errG_wavelet, latent_loss = model.gen_update(data, epoch, matrix)
 
         # logs
         if i % opt.log_iter == 0:
             print_and_write_log(train_log_file,
-                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f LossLatent %.10f' %
-                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item(), latent_loss.item()))
+                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f LossLatent %.10f LossWavelet %.10f' %
+                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item(), latent_loss.item(), errG_wavelet.item()))
 
         # write images for visualization
         if (iters % opt.visualize_iter == 0) or ((epoch == num_epochs) and (i == len(dataloader) - 1)):

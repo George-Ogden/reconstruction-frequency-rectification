@@ -5,6 +5,11 @@ import torch.nn as nn
 import torch.optim as optim
 from focal_frequency_loss import FocalFrequencyLoss as FFL
 
+import sys
+sys.path.append('/content/drive/MyDrive/frequency-rectification/wavelet_loss')
+
+from wavelet_loss import WaveletLoss
+
 from networks import MLP
 from utils import print_and_write_log, weights_init
 import torch
@@ -270,6 +275,10 @@ class EncoderDecoder(nn.Module):
                                   log_matrix=opt.log_matrix,
                                   batch_matrix=opt.batch_matrix).to(self.device)
 
+        self.criterion_wavelet = WaveletLoss(
+            wavelet='haar', level=2, loss_fn=nn.MSELoss()
+        ).to(self.device)
+
         # misc
         self.to(self.device)
 
@@ -295,11 +304,15 @@ class EncoderDecoder(nn.Module):
         else:
             errG_freq = torch.tensor(0.0).to(self.device)
 
-        errG = errG_pix + errG_freq + latent_loss * self.latent_loss_w
+        # Wavelet Loss
+        errG_wavelet = self.criterion_wavelet(recon, real) * self.opt.wavelet_w
+
+
+        errG = errG_pix + errG_freq + errG_wavelet + latent_loss * self.latent_loss_w
         errG.backward()
         self.optimizerG.step()
 
-        return errG_pix, errG_freq, latent_loss
+        return errG_pix, errG_freq, errG_wavelet, latent_loss
 
     def sample(self, x):
         x = x.to(self.device)

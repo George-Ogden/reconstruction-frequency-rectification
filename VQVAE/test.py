@@ -8,8 +8,9 @@ import torch
 import torch.backends.cudnn as cudnn
 from PIL import Image
 from tqdm import tqdm
+from torchvision.models import ResNet50_Weights
 
-from networks import MLP
+from networks import VQVAE
 from utils import get_dataloader, print_and_write_log, set_random_seed
 
 
@@ -38,6 +39,7 @@ parser.add_argument('--show_input', action='store_true', help='also save side-by
 opt = parser.parse_args()
 opt.is_train = False
 
+opt.resnet_weights = ResNet50_Weights.IMAGENET1K_V2
 
 def tensor2im(input_image, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
@@ -97,12 +99,11 @@ nc = int(opt.nc)
 imageSize = int(opt.imageSize)
 nz = int(opt.nz)
 nblk = int(opt.nblk)
-model_netG = MLP(input_dim=nc * imageSize * imageSize,
-                 output_dim=nc * imageSize * imageSize,
-                 dim=nz,
-                 n_blk=nblk,
-                 norm='none',
-                 activ='relu').to(device)
+model_netG = VQVAE(
+    n_embed=nz,
+    n_res_block=nblk,
+    in_channel=nc
+).to(device)
 model_netG.load_state_dict(torch.load(opt.netG, map_location=device))
 print_and_write_log(test_log_file, 'netG:')
 print_and_write_log(test_log_file, str(model_netG))
@@ -117,7 +118,7 @@ for i, data in enumerate(tqdm(dataloader), 0):
         break
     real = img.to(device)
     with torch.no_grad():
-        recon = model_netG(real)
+        recon, _ = model_netG(real)
     recon_img = tensor2im(recon)
     if opt.show_input:
         real_img = tensor2im(real)

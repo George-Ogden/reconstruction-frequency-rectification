@@ -58,7 +58,7 @@ def tensor2im(input_image, imtype=np.uint8):
             # grayscale to RGB
             image_numpy = np.tile(image_numpy, (3, 1, 1))
         # post-processing: transpose and scaling
-        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0
+        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) * (0.299, 0.244, 0.225) + (0.485, 0.456, 0.406)).clip(0.0, 1.0) * 255.0
     else:
         image_numpy = input_image
     return image_numpy.astype(imtype)

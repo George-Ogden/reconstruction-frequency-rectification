@@ -7,6 +7,7 @@ import torch
 import torch.backends.cudnn as cudnn
 import torchvision.utils as vutils
 from tqdm import tqdm
+from torchvision.models import ResNet50_Weights
 
 from models import EncoderDecoder
 from utils import get_dataloader, print_and_write_log, set_random_seed
@@ -46,10 +47,13 @@ parser.add_argument('--ave_spectrum', action='store_true', help='whether to use 
 parser.add_argument('--log_matrix', action='store_true', help='whether to adjust the spectrum weight matrix by logarithm')
 parser.add_argument('--batch_matrix', action='store_true', help='whether to calculate the spectrum weight matrix using batch-based statistics')
 parser.add_argument('--freq_start_epoch', type=int, default=1, help='the start epoch to add focal frequency loss')
+parser.add_argument('--cnn_loss_w0', type=float, help='weight to use for the early layer CNN loss', default=0.0)
+parser.add_argument('--cnn_loss_w1', type=float, help='weight to use for the mid layer CNN loss', default=0.0)
 
 opt = parser.parse_args()
 opt.is_train = True
 
+opt.resnet_weights = ResNet50_Weights.IMAGENET1K_V2
 
 os.makedirs(os.path.join(opt.expf, 'images'), exist_ok=True)
 os.makedirs(os.path.join(opt.expf, 'checkpoints'), exist_ok=True)
@@ -85,13 +89,13 @@ for epoch in tqdm(range(1, num_epochs + 1)):
             data = img
 
         # main training code
-        errG_pix, errG_freq, latent_loss = model.gen_update(data, epoch, matrix)
+        errG_pix, errG_freq, latent_loss, errG_cnn = model.gen_update(data, epoch, matrix)
 
         # logs
         if i % opt.log_iter == 0:
             print_and_write_log(train_log_file,
-                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f LossLatent %.10f' %
-                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item(), latent_loss.item()))
+                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f LossLatent %.10f LossCNN %.10f' %
+                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item(), latent_loss.item(), errG_cnn.item()))
 
         # write images for visualization
         if (iters % opt.visualize_iter == 0) or ((epoch == num_epochs) and (i == len(dataloader) - 1)):

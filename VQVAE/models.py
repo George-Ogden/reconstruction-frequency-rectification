@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from focal_frequency_loss import FocalFrequencyLoss as FFL
-from torchvision.models import resnet50
+from torchvision import models
 
 from networks import VQVAE, ResNetSubset
 from utils import print_and_write_log, weights_init
@@ -36,7 +36,7 @@ class EncoderDecoder(nn.Module):
                                   batch_matrix=opt.batch_matrix).to(self.device) if opt.ffl_w != 0 else (
                                         lambda tensor, *tensors: torch.zeros((), device=tensor.device, dtype=tensor.dtype))
         self.cnn_loss_ws = float(opt.cnn_loss_w0), float(opt.cnn_loss_w1)
-        self.resnet = ResNetSubset(resnet50(weights=opt.resnet_weights))
+        self.resnet = ResNetSubset(getattr(models, opt.model)(weights=opt.resnet_weights))
 
         # misc
         self.to(self.device)

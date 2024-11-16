@@ -6,8 +6,8 @@ import random
 import torch
 import torch.backends.cudnn as cudnn
 import torchvision.utils as vutils
+import torchvision.models as vmodels
 from tqdm import tqdm
-from torchvision.models import ResNet50_Weights
 
 from models import EncoderDecoder
 from utils import get_dataloader, print_and_write_log, set_random_seed
@@ -49,11 +49,12 @@ parser.add_argument('--batch_matrix', action='store_true', help='whether to calc
 parser.add_argument('--freq_start_epoch', type=int, default=1, help='the start epoch to add focal frequency loss')
 parser.add_argument('--cnn_loss_w0', type=float, help='weight to use for the early layer CNN loss', default=0.0)
 parser.add_argument('--cnn_loss_w1', type=float, help='weight to use for the mid layer CNN loss', default=0.0)
+parser.add_argument('--model', type=str, help='type of model to use for CNN loss', default='resnet50')
 
 opt = parser.parse_args()
 opt.is_train = True
 
-opt.resnet_weights = ResNet50_Weights.IMAGENET1K_V2
+opt.resnet_weights = getattr(vmodels, opt.model.replace("resnet", "ResNet") + "_Weights").DEFAULT
 
 os.makedirs(os.path.join(opt.expf, 'images'), exist_ok=True)
 os.makedirs(os.path.join(opt.expf, 'checkpoints'), exist_ok=True)

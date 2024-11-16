@@ -10,7 +10,8 @@ EXP_DIR='./VQVAE/experiments/'$VERSION
 RES_DIR='./VQVAE/results/'$VERSION
 WORKER=0
 
-for W0 in 0.001 0.01 0.1 1 10; do
+# for W0 in 0.001 0.01 0.1; do
+for W0 in 0.001 0.01 0.1; do
     for W1 in 0.001 0.01 0.1 1 10; do
         python ./VQVAE/test.py \
             --dataset $DATA \

@@ -8,7 +8,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from PIL import Image
 from tqdm import tqdm
-from torchvision.models import ResNet50_Weights
+import torchvision.models as vmodels
 
 from networks import VQVAE
 from utils import get_dataloader, print_and_write_log, set_random_seed
@@ -36,10 +36,13 @@ parser.add_argument('--resf', type=str, default='./results', help='folder to sav
 parser.add_argument('--num_test', type=int, default=float('inf'), help='how many images to test')
 parser.add_argument('--show_input', action='store_true', help='also save side-by-side results with input (for metric evaluation)')
 
+# loss model
+parser.add_argument('--model', type=str, help='type of model to use for CNN loss', default='resnet50')
+
 opt = parser.parse_args()
 opt.is_train = False
 
-opt.resnet_weights = ResNet50_Weights.IMAGENET1K_V2
+opt.resnet_weights = getattr(vmodels, opt.model.replace("resnet", "ResNet") + "_Weights").DEFAULT
 
 def tensor2im(input_image, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.

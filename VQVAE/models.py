@@ -6,7 +6,7 @@ import torch.optim as optim
 from focal_frequency_loss import FocalFrequencyLoss as FFL
 
 import sys
-sys.path.append('/content/drive/MyDrive/frequency-rectification/wavelet_loss')
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from wavelet_loss import WaveletLoss
 

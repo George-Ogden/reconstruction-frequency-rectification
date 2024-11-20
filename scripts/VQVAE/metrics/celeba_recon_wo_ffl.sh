@@ -3,7 +3,7 @@
 set -x
 
 VERSION='celeba_recon_wo_ffl'
-EPOCH='epoch_010_seed_1112_with_input'
+EPOCH='epoch_005_seed_1112_with_input'
 METRICS='psnr ssim lpips fid lfd'
 FDRF='./VQVAE/results/'$VERSION'/'$EPOCH
 LOGS='./VQVAE/results/'$VERSION'/metrics_'$EPOCH'.txt'

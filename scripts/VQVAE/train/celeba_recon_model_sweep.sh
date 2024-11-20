@@ -18,8 +18,8 @@ for model in resnet18 resnet34 resnet50 resnet101 resnet152; do
         --workers $WORKERS \
         --batchSize 128 \
         --imageSize 224 \
-        --nz 256 \
-        --nblk 2 \
+        --nz 128 \
+        --nblk 1 \
         --nepoch 5 \
         --expf $EXP_DIR-$model-$W0-$W1 \
         --manualSeed 1112 \

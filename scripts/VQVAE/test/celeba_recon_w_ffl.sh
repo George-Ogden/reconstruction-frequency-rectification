@@ -21,7 +21,7 @@ python ./VQVAE/test.py \
     --nblk 2 \
     --expf $EXP_DIR \
     --manualSeed 1112 \
-    --epoch_test 20 \
+    --epoch_test 10 \
     --eval \
     --resf $RES_DIR \
     --show_input

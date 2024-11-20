@@ -18,7 +18,7 @@ python ./VQVAE/train.py \
     --imageSize 224 \
     --nz 256 \
     --nblk 2 \
-    --nepoch 20 \
+    --nepoch 10 \
     --expf $EXP_DIR \
     --manualSeed 1112 \
     --log_iter 50 \

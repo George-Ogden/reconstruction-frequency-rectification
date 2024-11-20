@@ -8,8 +8,9 @@ import torch
 import torch.backends.cudnn as cudnn
 from PIL import Image
 from tqdm import tqdm
+import torchvision.models as vmodels
 
-from networks import MLP
+from networks import VQVAE
 from utils import get_dataloader, print_and_write_log, set_random_seed
 
 
@@ -35,9 +36,13 @@ parser.add_argument('--resf', type=str, default='./results', help='folder to sav
 parser.add_argument('--num_test', type=int, default=float('inf'), help='how many images to test')
 parser.add_argument('--show_input', action='store_true', help='also save side-by-side results with input (for metric evaluation)')
 
+# loss model
+parser.add_argument('--model', type=str, help='type of model to use for CNN loss', default='resnet50')
+
 opt = parser.parse_args()
 opt.is_train = False
 
+opt.resnet_weights = getattr(vmodels, opt.model.replace("resnet", "ResNet") + "_Weights").DEFAULT
 
 def tensor2im(input_image, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
@@ -56,7 +61,7 @@ def tensor2im(input_image, imtype=np.uint8):
             # grayscale to RGB
             image_numpy = np.tile(image_numpy, (3, 1, 1))
         # post-processing: transpose and scaling
-        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0
+        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) * (0.299, 0.244, 0.225) + (0.485, 0.456, 0.406)).clip(0.0, 1.0) * 255.0
     else:
         image_numpy = input_image
     return image_numpy.astype(imtype)
@@ -97,12 +102,11 @@ nc = int(opt.nc)
 imageSize = int(opt.imageSize)
 nz = int(opt.nz)
 nblk = int(opt.nblk)
-model_netG = MLP(input_dim=nc * imageSize * imageSize,
-                 output_dim=nc * imageSize * imageSize,
-                 dim=nz,
-                 n_blk=nblk,
-                 norm='none',
-                 activ='relu').to(device)
+model_netG = VQVAE(
+    n_embed=nz,
+    n_res_block=nblk,
+    in_channel=nc
+).to(device)
 model_netG.load_state_dict(torch.load(opt.netG, map_location=device))
 print_and_write_log(test_log_file, 'netG:')
 print_and_write_log(test_log_file, str(model_netG))
@@ -117,7 +121,7 @@ for i, data in enumerate(tqdm(dataloader), 0):
         break
     real = img.to(device)
     with torch.no_grad():
-        recon = model_netG(real)
+        recon, _ = model_netG(real)
     recon_img = tensor2im(recon)
     if opt.show_input:
         real_img = tensor2im(real)

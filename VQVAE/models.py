@@ -36,7 +36,7 @@ class EncoderDecoder(nn.Module):
                                   batch_matrix=opt.batch_matrix).to(self.device) if opt.ffl_w != 0 else (
                                         lambda tensor, *tensors: torch.zeros((), device=tensor.device, dtype=tensor.dtype))
         self.cnn_loss_ws = float(opt.cnn_loss_w0), float(opt.cnn_loss_w1)
-        self.resnet = ResNetSubset(getattr(models, opt.model)(weights=opt.resnet_weights))
+        self.resnet = ResNetSubset(getattr(models, opt.model)(weights="DEFAULT"))
 
         # misc
         self.to(self.device)

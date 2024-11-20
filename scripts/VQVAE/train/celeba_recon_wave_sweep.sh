@@ -9,7 +9,7 @@ DATALIST='./datasets/celeba_recon_lists/train.txt'
 EXP_DIR='./VQVAE/experiments/'$VERSION
 WORKER=8
 
-for W in 0.001 0.01 0.1 1 10 100; do
+for W in 0.0001 0.001 0.01 0.1 1; do
     python ./VQVAE/train.py \
         --dataset $DATA \
         --dataroot $DATAROOT \
@@ -27,5 +27,5 @@ for W in 0.001 0.01 0.1 1 10 100; do
         --ckpt_save_epoch 1 \
         --mse_w 1.0 \
         --ffl_w 0.0 \
-        --wavelet_w 1.0
+        --wavelet_w $W
 done

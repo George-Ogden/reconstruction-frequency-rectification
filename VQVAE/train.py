@@ -104,7 +104,9 @@ for epoch in tqdm(range(1, num_epochs + 1)):
             real_cpu = data.cpu()
             recon = model.sample(real_cpu)
             visual = torch.cat([real_cpu[:16], recon.detach().cpu()[:16]], 0)
-            vutils.save_image(visual, '%s/images/epoch_%03d_real_recon.png' % (opt.expf, epoch), normalize=True, nrow=16)
+            visual = visual * torch.tensor((0.299, 0.244, 0.225)).reshape((1, 3, 1, 1)) + torch.tensor((0.485, 0.456, 0.406)).reshape((1, 3, 1, 1))
+            visual = visual.clamp(0.0, 1.0)
+            vutils.save_image(visual, '%s/images/epoch_%03d_real_recon.png' % (opt.expf, epoch), normalize=False, nrow=16)
 
         iters += 1
 

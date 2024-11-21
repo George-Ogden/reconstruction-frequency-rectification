@@ -1,6 +1,5 @@
 from pytorch_wavelets import DWTForward  # Discrete Wavelet Transform Forward
 
-import torch
 import torch.nn as nn
 
 class WaveletLoss(nn.Module):
@@ -16,7 +15,13 @@ class WaveletLoss(nn.Module):
 
         # Compute loss for each subband
         total_loss = 0
-        for pc, tc in zip(pred_coeffs[0], target_coeffs[0]):
-            total_loss += self.loss_fn(pc, tc)
+        pred_yl, pred_yh = pred_coeffs
+        target_yl, target_yh = target_coeffs
+
+        for pred_coeffs, targte_coeffs in zip(pred_yl, target_yl):
+            total_loss += self.loss_fn(pred_coeffs, targte_coeffs)
+
+        for pred_coeffs, targte_coeffs in zip(pred_yh, target_yh):
+            total_loss += self.loss_fn(pred_coeffs, targte_coeffs)
 
         return total_loss

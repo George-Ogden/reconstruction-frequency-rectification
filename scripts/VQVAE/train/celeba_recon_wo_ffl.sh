@@ -16,8 +16,8 @@ python ./VQVAE/train.py \
     --workers $WORKER \
     --batchSize 128 \
     --imageSize 224 \
-    --nz 256 \
-    --nblk 2 \
+    --nz 128 \
+    --nblk 1 \
     --nepoch 10 \
     --expf $EXP_DIR \
     --manualSeed 1112 \

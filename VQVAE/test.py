@@ -42,8 +42,6 @@ parser.add_argument('--model', type=str, help='type of model to use for CNN loss
 opt = parser.parse_args()
 opt.is_train = False
 
-opt.resnet_weights = getattr(vmodels, opt.model.replace("resnet", "ResNet") + "_Weights").DEFAULT
-
 def tensor2im(input_image, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
 

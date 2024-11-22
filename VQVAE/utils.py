@@ -29,7 +29,12 @@ def get_dataloader(opt):
         assert opt.imageSize == 224
         dataset = ImageFilelist(root=opt.dataroot,
                                 flist=opt.datalist,
-                                transform=opt.resnet_weights.transforms(),
+                                transform=transforms.Compose([
+                                    transforms.Resize(opt.imageSize),
+                                    transforms.CenterCrop(opt.imageSize),
+                                    transforms.ToTensor(),
+                                    transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+                                ]),
                                 return_paths=not opt.is_train)
         nc = 3
     elif opt.dataset == 'pairfilelist':

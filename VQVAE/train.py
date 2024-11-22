@@ -54,8 +54,6 @@ parser.add_argument('--model', type=str, help='type of model to use for CNN loss
 opt = parser.parse_args()
 opt.is_train = True
 
-opt.resnet_weights = getattr(vmodels, opt.model.replace("resnet", "ResNet") + "_Weights").DEFAULT
-
 os.makedirs(os.path.join(opt.expf, 'images'), exist_ok=True)
 os.makedirs(os.path.join(opt.expf, 'checkpoints'), exist_ok=True)
 os.makedirs(os.path.join(opt.expf, 'logs'), exist_ok=True)

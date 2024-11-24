@@ -35,7 +35,7 @@ class EncoderDecoder(nn.Module):
         # define focal frequency loss
         self.criterion_freq = FFL(loss_weight=opt.ffl_w,
                                   alpha=opt.alpha,
-                                  patch_factor=opt.patch_factor,
+                                  patch_factors=opt.patch_factors,
                                   ave_spectrum=opt.ave_spectrum,
                                   log_matrix=opt.log_matrix,
                                   batch_matrix=opt.batch_matrix).to(self.device)

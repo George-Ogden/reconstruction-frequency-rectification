@@ -41,7 +41,7 @@ class EncoderDecoder(nn.Module):
                                   batch_matrix=opt.batch_matrix).to(self.device)
 
         self.criterion_wavelet = WaveletLoss(
-            wavelet='haar', level=2, loss_fn=nn.MSELoss()
+            wavelet='haar', level=opt.wavelet_level, loss_fn=nn.MSELoss(), w0=opt.wavelet_w0, w1=opt.wavelet_w1
         ).to(self.device)
 
         self.cnn_loss_ws = float(opt.cnn_loss_w0), float(opt.cnn_loss_w1)
@@ -84,7 +84,7 @@ class EncoderDecoder(nn.Module):
             errG_freq = torch.tensor(0.0).to(self.device)
 
         # Wavelet Loss
-        errG_wavelet = self.criterion_wavelet(recon, real) * self.opt.wavelet_w
+        errG_wavelet = self.criterion_wavelet(recon, real)
 
 
         # apply CNN loss

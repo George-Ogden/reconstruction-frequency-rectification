@@ -65,7 +65,6 @@ class FocalFrequencyLoss(nn.Module):
             else:
                 freq = torch.rfft(y, 2, onesided=False, normalized=True)
 
-        
             freqs.append(freq)
         
         # stack and return    

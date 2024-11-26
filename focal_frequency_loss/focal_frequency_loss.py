@@ -124,7 +124,7 @@ class FocalFrequencyLoss(nn.Module):
         
         total_loss = torch.tensor(0.0, device=pred.device, dtype=pred.dtype)
         
-        # loop over patch_factor dim (dim=1 in tensor2freq)
+        # loop over patch_factor dim (list in tensor2freq)
         for i in range(len(self.patch_factors)):
             
             # splices for both SHOULD have shape: (N, C, H, W)

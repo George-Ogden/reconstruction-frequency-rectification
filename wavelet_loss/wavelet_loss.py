@@ -1,5 +1,6 @@
 from pytorch_wavelets import DWTForward  # Discrete Wavelet Transform Forward
 
+import torch
 import torch.nn as nn
 
 class WaveletLoss(nn.Module):
@@ -10,6 +11,9 @@ class WaveletLoss(nn.Module):
         self.loss_coeffs = (w0, w1)
 
     def forward(self, pred, target):
+        if self.loss_coeffs == (0, 0):
+            return torch.zeros((), dtype=pred.dtype, requires_grad=True, device=pred.device)
+
         # Perform Wavelet Transform on predicted and target images
         pred_coeffs = self.dwt(pred)
         target_coeffs = self.dwt(target)

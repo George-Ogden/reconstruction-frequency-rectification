@@ -57,12 +57,18 @@ parser.add_argument('--ave_spectrum', action='store_true', help='whether to use 
 parser.add_argument('--alpha', type=float, default=1.0, help='the scaling factor alpha of the spectrum weight matrix for flexibility')
 parser.add_argument('--log_matrix', action='store_true', help='whether to adjust the spectrum weight matrix by logarithm')
 parser.add_argument('--batch_matrix', action='store_true', help='whether to calculate the spectrum weight matrix using batch-based statistics')
+parser.add_argument('--freq_start_epoch', type=int, default=1, help='the start epoch to add focal frequency loss')
+parser.add_argument('--wavelet_w0', type=float, default=0.0, help='Wavelet loss weight for low frequency terms')
+parser.add_argument('--wavelet_w1', type=float, default=0.0, help='Wavelet loss weight for high frequency terms')
+parser.add_argument('--wavelet_level', type=int, default=0, help='decomposition level for wavelet loss')
+parser.add_argument('--cnn_loss_w0', type=float, help='weight to use for the early layer CNN loss', default=0.0)
+parser.add_argument('--cnn_loss_w1', type=float, help='weight to use for the mid layer CNN loss', default=0.0)
+parser.add_argument('--model', type=str, help='type of model to use for CNN loss', default='resnet50')
 parser.add_argument('--patch_factors', type=int, nargs='+', default=[1], help='unique list of img subdivision levels to use in multi-FFL\ne.g. train.py --patch_factors 2 4') 
 
 opt = parser.parse_args()
 
 opt.is_train = True
-opt.resnet_weights = getattr(vmodels, opt.model.replace("resnet", "ResNet") + "_Weights").DEFAULT
 
 os.makedirs(os.path.join(opt.expf, 'images'), exist_ok=True)
 os.makedirs(os.path.join(opt.expf, 'checkpoints'), exist_ok=True)

@@ -2,16 +2,17 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from focal_frequency_loss import FocalFrequencyLoss as FFL
-from torchvision import models
 
+from torchvision import models
 from networks import VQVAE, ResNetSubset
+from focal_frequency_loss import FocalFrequencyLoss as FFL
+from utils import print_and_write_log, weights_init
 
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from wavelet_loss import WaveletLoss
-from utils import print_and_write_log, weights_init
+
 
 class EncoderDecoder(nn.Module):
     def __init__(self, opt):
@@ -35,7 +36,7 @@ class EncoderDecoder(nn.Module):
         # define focal frequency loss
         self.criterion_freq = FFL(loss_weight=opt.ffl_w,
                                   alpha=opt.alpha,
-                                  patch_factor=opt.patch_factor,
+                                  patch_factors=opt.patch_factors,
                                   ave_spectrum=opt.ave_spectrum,
                                   log_matrix=opt.log_matrix,
                                   batch_matrix=opt.batch_matrix).to(self.device)

@@ -40,7 +40,6 @@ class FocalFrequencyLoss(nn.Module):
         # Naive - define per-patch freq. loss weights via weighted sum of all patch factors 
         nf_tmp = sum(patch_factors)
         self.patch_weights = list(reversed([x/nf_tmp for x in patch_factors]))
-        print(self.patch_weights)
         
 
     def tensor2freq(self, x):
@@ -124,7 +123,7 @@ class FocalFrequencyLoss(nn.Module):
         assert len(self.patch_weights) == len(pred_freqs), (
             "Number of patch factors and patch_weights must match")
         
-        total_loss = torch.tensor(0.0)
+        total_loss = torch.tensor(0.0, device=pred.device, dtype=pred.dtype)
         
         # loop over patch_factor dim (dim=1 in tensor2freq)
         for i in range(len(self.patch_factors)):

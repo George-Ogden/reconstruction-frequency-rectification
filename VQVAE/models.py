@@ -6,12 +6,12 @@ import torch.nn.functional as F
 from torchvision import models
 from networks import VQVAE, ResNetSubset
 from focal_frequency_loss import FocalFrequencyLoss as FFL
-from wavelet_loss import WaveletLoss
 from utils import print_and_write_log, weights_init
 
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+from wavelet_loss import WaveletLoss
 
 
 class EncoderDecoder(nn.Module):

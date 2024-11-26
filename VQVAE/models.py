@@ -45,7 +45,7 @@ class EncoderDecoder(nn.Module):
         ).to(self.device)
 
         self.cnn_loss_ws = float(opt.cnn_loss_w0), float(opt.cnn_loss_w1)
-        self.resnet = ResNetSubset(getattr(models, opt.model)(weights=opt.resnet_weights))
+        self.resnet = ResNetSubset(getattr(models, opt.model)(weights="DEFAULT"))
 
         # misc
         self.to(self.device)

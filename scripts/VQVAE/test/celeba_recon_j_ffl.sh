@@ -17,11 +17,11 @@ python ./VQVAE/test.py \
     --workers $WORKER \
     --batchSize 1 \
     --imageSize 224 \
-    --nz 256 \
-    --nblk 2 \
+    --nz 128 \
+    --nblk 1 \
     --expf $EXP_DIR \
     --manualSeed 1112 \
-    --epoch_test 10 \
+    --epoch_test 5 \
     --eval \
     --resf $RES_DIR \
     --show_input

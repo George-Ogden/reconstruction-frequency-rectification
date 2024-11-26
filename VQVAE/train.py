@@ -47,6 +47,9 @@ parser.add_argument('--ave_spectrum', action='store_true', help='whether to use 
 parser.add_argument('--log_matrix', action='store_true', help='whether to adjust the spectrum weight matrix by logarithm')
 parser.add_argument('--batch_matrix', action='store_true', help='whether to calculate the spectrum weight matrix using batch-based statistics')
 parser.add_argument('--freq_start_epoch', type=int, default=1, help='the start epoch to add focal frequency loss')
+parser.add_argument('--wavelet_w0', type=float, default=0.0, help='Wavelet loss weight for low frequency terms')
+parser.add_argument('--wavelet_w1', type=float, default=0.0, help='Wavelet loss weight for high frequency terms')
+parser.add_argument('--wavelet_level', type=int, default=0, help='decomposition level for wavelet loss')
 parser.add_argument('--cnn_loss_w0', type=float, help='weight to use for the early layer CNN loss', default=0.0)
 parser.add_argument('--cnn_loss_w1', type=float, help='weight to use for the mid layer CNN loss', default=0.0)
 parser.add_argument('--model', type=str, help='type of model to use for CNN loss', default='resnet50')
@@ -88,20 +91,22 @@ for epoch in tqdm(range(1, num_epochs + 1)):
             data = img
 
         # main training code
-        errG_pix, errG_freq, latent_loss, errG_cnn = model.gen_update(data, epoch, matrix)
+        errG_pix, errG_freq, errG_wavelet, latent_loss, errG_cnn = model.gen_update(data, epoch, matrix)
 
         # logs
         if i % opt.log_iter == 0:
             print_and_write_log(train_log_file,
-                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f LossLatent %.10f LossCNN %.10f' %
-                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item(), latent_loss.item(), errG_cnn.item()))
+                                '[%d/%d][%d/%d] LossPixel: %.10f LossFreq: %.10f LossWavelet %.10f LossLatent %.10f LossCNN %.10f' %
+                                (epoch, num_epochs, i, len(dataloader), errG_pix.item(), errG_freq.item(), errG_wavelet.item(), latent_loss.item(), errG_cnn.item()))
 
         # write images for visualization
         if (iters % opt.visualize_iter == 0) or ((epoch == num_epochs) and (i == len(dataloader) - 1)):
             real_cpu = data.cpu()
             recon = model.sample(real_cpu)
             visual = torch.cat([real_cpu[:16], recon.detach().cpu()[:16]], 0)
-            vutils.save_image(visual, '%s/images/epoch_%03d_real_recon.png' % (opt.expf, epoch), normalize=True, nrow=16)
+            visual = visual * torch.tensor((0.299, 0.244, 0.225)).reshape((1, 3, 1, 1)) + torch.tensor((0.485, 0.456, 0.406)).reshape((1, 3, 1, 1))
+            visual = visual.clamp(0.0, 1.0)
+            vutils.save_image(visual, '%s/images/epoch_%03d_real_recon.png' % (opt.expf, epoch), normalize=False, nrow=16)
 
         iters += 1
 

@@ -5,3 +5,5 @@ opencv-python
 lpips
 pytorch-fid
 focal-frequency-loss
+pytorch-wavelets
+PyWavelets

@@ -2,7 +2,7 @@
 
 set -x
 
-VERSION='model-sweep'
+VERSION='celeba_recon_ffl_patch_sweep'
 DATA='filelist'
 DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/test.txt'
@@ -10,7 +10,7 @@ EXP_DIR='./VQVAE/experiments/'$VERSION
 RES_DIR='./VQVAE/results/'$VERSION
 WORKER=8
 
-for model in resnet18 resnet34 resnet50 resnet101 resnet152; do
+for P in 1 2 4 8 16 32; do
     python ./VQVAE/test.py \
         --dataset $DATA \
         --dataroot $DATAROOT \
@@ -20,11 +20,10 @@ for model in resnet18 resnet34 resnet50 resnet101 resnet152; do
         --imageSize 224 \
         --nz 128 \
         --nblk 1 \
-        --expf $EXP_DIR-$model-$W0-$W1 \
+        --expf $EXP_DIR-$P \
         --manualSeed 1112 \
         --epoch_test 5 \
         --eval \
-        --resf $RES_DIR-$model-$W0-$W1 \
-        --show_input \
-        --model $model
+        --resf $RES_DIR-$P \
+        --show_input 
 done

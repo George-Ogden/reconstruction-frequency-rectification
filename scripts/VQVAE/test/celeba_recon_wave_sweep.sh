@@ -8,7 +8,7 @@ DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/test.txt'
 EXP_DIR='./VQVAE/experiments/'$VERSION
 RES_DIR='./VQVAE/results/'$VERSION
-WORKER=8
+WORKERS=8
 
 for W0 in 0.001 0.003 0.01 0.03 0.1; do
     for W1 in 0.001 0.003 0.01 0.03 0.1; do
@@ -17,7 +17,7 @@ for W0 in 0.001 0.003 0.01 0.03 0.1; do
                 --dataset $DATA \
                 --dataroot $DATAROOT \
                 --datalist $DATALIST \
-                --workers $WORKER \
+                --WORKERS $WORKERS \
                 --batchSize 1 \
                 --imageSize 224 \
                 --nz 128 \

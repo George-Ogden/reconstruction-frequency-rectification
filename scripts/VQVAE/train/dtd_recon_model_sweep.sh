@@ -2,7 +2,7 @@
 
 set -x
 
-VERSION='dtd-model-sweep'
+VERSION='dtd_recon_model_sweep'
 DATA='filelist'
 DATAROOT='./datasets/dtd/images'
 DATALIST='./datasets/dtd/train_list.txt'
@@ -15,7 +15,7 @@ for model in resnet152; do
         --dataset $DATA \
         --dataroot $DATAROOT \
         --datalist $DATALIST \
-        --workers $WORKERS \
+        --WORKERS $WORKERS \
         --batchSize 128 \
         --imageSize 224 \
         --nz 128 \

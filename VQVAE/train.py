@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', required=True, help='folderall | filelist | pairfilelist')
 parser.add_argument('--dataroot', default='', help='path to dataset')
 parser.add_argument('--datalist', default='', help='path to dataset file list')
-parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
+parser.add_argument('--WORKERS', type=int, help='number of data loading WORKERS', default=4)
 parser.add_argument('--batchSize', type=int, default=128, help='input batch size (default 128)')
 parser.add_argument('--imageSize', type=int, default=64, help='dimensions of network\'s input image (height = width = imageSize)')
 

@@ -8,7 +8,22 @@ import plotly.express as px
 
 def main(args):
     plotting_data = []
-    for filename in glob("VQVAE/results/celeba_recon_ffl_patch_sweep*/metrics*.txt") + glob("VQVAE/results/*ffl/metrics*.txt"):
+
+    for filename in glob("VQVAE/results/celeba_recon_model_sweep-*-*/metrics*.txt") + glob("VQVAE/results/*ffl/metrics*.txt"):
+        match = re.match(r"VQVAE/results/.+((resnet\d+)|(j|w|(wo))_ffl)", filename)
+        if match:
+            model = match.group(1)
+            with open(filename) as f:
+                lines = [line.split(":") for line in f.read().strip().splitlines()]
+                metrics = {metric.strip(): float(score.strip()) for metric, score in lines}
+                for metric, score in metrics.items():
+                    plotting_data.append({
+                        "metric": metric,
+                        "score": score,
+                        "variant": model,
+                    })
+
+    for filename in glob("VQVAE/results/celeba_recon_ffl_patch_sweep*/metrics*.txt"):
         match = re.match(r"VQVAE/results/[^/]+?((\d+)|(j|w|(wo))_ffl)", filename)
         if match:
             patch = match.group(1)
@@ -26,10 +41,11 @@ def main(args):
                         "score": score,
                         "patch": patch
                     })
-    order = ["patch-1", "patch-2", "patch-4", "patch-8", "patch-16", "patch-32", "wo_ffl", "w_ffl", "j_ffl"]
-    plotting_data.sort(key=lambda x: order.index(x["patch"]))
+
+
 
     df = pd.DataFrame(plotting_data)
+    print(df.pivot_table(values="score", index="patch", columns="metric"))
 
     metrics = pd.unique(df["metric"]) if args.metrics is None else args.metrics
     for metric in metrics:
@@ -55,7 +71,7 @@ def main(args):
         title="Metrics Comparison Across Patch Sizes",
         showlegend=False
     )
-    fig.show()
+    # fig.show()
 
     
 def parse_args():

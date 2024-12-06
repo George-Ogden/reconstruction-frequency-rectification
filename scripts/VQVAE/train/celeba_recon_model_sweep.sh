@@ -2,7 +2,7 @@
 
 set -x
 
-VERSION='model-sweep'
+VERSION='celeba_recon_model_sweep'
 DATA='filelist'
 DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/train.txt'
@@ -15,7 +15,7 @@ for model in resnet18 resnet34 resnet50 resnet101 resnet152; do
         --dataset $DATA \
         --dataroot $DATAROOT \
         --datalist $DATALIST \
-        --workers $WORKERS \
+        --WORKERS $WORKERS \
         --batchSize 128 \
         --imageSize 224 \
         --nz 128 \

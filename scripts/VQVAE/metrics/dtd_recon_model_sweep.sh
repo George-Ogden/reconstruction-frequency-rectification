@@ -2,7 +2,7 @@
 
 set -x
 
-VERSION='dtd-model-sweep'
+VERSION='dtd_recon_model_sweep'
 METRICS='psnr ssim lpips fid lfd'
 METRICS='lfd'
 EPOCH='epoch_005_seed_1112_with_input'

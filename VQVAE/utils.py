@@ -58,7 +58,7 @@ def get_dataloader(opt):
     assert dataset
     assert nc > 0
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=opt.batchSize, drop_last=opt.is_train,
-                                             shuffle=opt.is_train, num_workers=int(opt.workers))
+                                             shuffle=opt.is_train, num_workers=int(opt.WORKERS))
     return dataloader, nc
 
 

@@ -8,13 +8,13 @@ DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/test.txt'
 EXP_DIR='./VQVAE/experiments/'$VERSION
 RES_DIR='./VQVAE/results/'$VERSION
-WORKER=0
+WORKERS=8
 
 python ./VQVAE/test.py \
     --dataset $DATA \
     --dataroot $DATAROOT \
     --datalist $DATALIST \
-    --workers $WORKER \
+    --WORKERS $WORKERS \
     --batchSize 1 \
     --imageSize 224 \
     --nz 128 \

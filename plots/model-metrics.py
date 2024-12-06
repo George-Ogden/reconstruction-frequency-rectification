@@ -8,7 +8,7 @@ import plotly.express as px
 
 def main(args):
     plotting_data = []
-    for filename in glob("VQVAE/results/model-sweep-*-*/metrics*.txt") + glob("VQVAE/results/*ffl/metrics*.txt"):
+    for filename in glob("VQVAE/results/celeba_recon_model_sweep-*-*/metrics*.txt") + glob("VQVAE/results/*ffl/metrics*.txt"):
         match = re.match(r"VQVAE/results/.+((resnet\d+)|(j|w|(wo))_ffl)", filename)
         if match:
             model = match.group(1)
@@ -25,6 +25,8 @@ def main(args):
     plotting_data.sort(key=lambda x: order.index(x["variant"]))
 
     df = pd.DataFrame(plotting_data)
+    # print(df.pivot(columns="metric", index="variant", values=["score"]))
+    print(df.pivot_table(values="score", index="variant", columns="metric"))
 
     metrics = pd.unique(df["metric"]) if args.metrics is None else args.metrics
     for metric in metrics:
@@ -50,7 +52,7 @@ def main(args):
         title="Metrics Comparison Across Models",
         showlegend=False
     )
-    fig.show()
+    # fig.show()
 
     
 def parse_args():

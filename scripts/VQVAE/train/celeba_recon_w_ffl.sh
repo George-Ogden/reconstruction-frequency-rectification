@@ -7,13 +7,13 @@ DATA='filelist'
 DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/train.txt'
 EXP_DIR='./VQVAE/experiments/'$VERSION
-WORKER=8
+WORKERS=8
 
 python ./VQVAE/train.py \
     --dataset $DATA \
     --dataroot $DATAROOT \
     --datalist $DATALIST \
-    --workers $WORKER \
+    --WORKERS $WORKERS \
     --batchSize 128 \
     --imageSize 224 \
     --nz 128 \

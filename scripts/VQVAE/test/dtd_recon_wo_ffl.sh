@@ -14,7 +14,7 @@ python ./VQVAE/test.py \
     --dataset $DATA \
     --dataroot $DATAROOT \
     --datalist $DATALIST \
-    --workers $WORKERS \
+    --WORKERS $WORKERS \
     --batchSize 1 \
     --imageSize 224 \
     --nz 128 \

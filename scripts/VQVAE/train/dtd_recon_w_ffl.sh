@@ -13,7 +13,7 @@ python ./VQVAE/train.py \
     --dataset $DATA \
     --dataroot $DATAROOT \
     --datalist $DATALIST \
-    --workers $WORKERS \
+    --WORKERS $WORKERS \
     --batchSize 128 \
     --imageSize 224 \
     --nz 128 \

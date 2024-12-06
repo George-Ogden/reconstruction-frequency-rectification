@@ -8,14 +8,14 @@ DATAROOT='./datasets/celeba'
 DATALIST='./datasets/celeba_recon_lists/test.txt'
 EXP_DIR='./VQVAE/experiments/'$VERSION
 RES_DIR='./VQVAE/results/'$VERSION
-WORKER=8
+WORKERS=8
 
 for P in 1 2 4 8 16 32; do
     python ./VQVAE/test.py \
         --dataset $DATA \
         --dataroot $DATAROOT \
         --datalist $DATALIST \
-        --workers $WORKER \
+        --WORKERS $WORKERS \
         --batchSize 1 \
         --imageSize 224 \
         --nz 128 \

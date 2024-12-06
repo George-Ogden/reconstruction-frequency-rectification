@@ -2,7 +2,7 @@
 
 set -x
 
-VERSION='model-sweep'
+VERSION='celeba_recon_model_sweep'
 METRICS='psnr ssim lpips fid lfd'
 EPOCH='epoch_005_seed_1112_with_input'
 

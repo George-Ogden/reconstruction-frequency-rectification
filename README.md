@@ -1,8 +1,8 @@
-## Focal Frequency Loss - Official PyTorch Implementation
 
-![teaser](https://raw.githubusercontent.com/EndlessSora/focal-frequency-loss/master/resources/teaser.jpg)
+## Modified VQVAE
 
-This repository provides the official PyTorch implementation for the following paper:
+This repository builds on and explores frequency-space losses. 
+VQVAE has been used as a baseline model; the starting point is taken from the official PyTorch implementation for the following paper:
 
 **Focal Frequency Loss for Image Reconstruction and Synthesis**<br>
 [Liming Jiang](https://liming-jiang.com/), [Bo Dai](http://daibo.info/), [Wayne Wu](https://wywu.github.io/) and [Chen Change Loy](http://personal.ie.cuhk.edu.hk/~ccloy/)<br>
@@ -12,51 +12,17 @@ In ICCV 2021.<br>
 
 ## Updates
 
-- [09/2021] The **code** of Focal Frequency Loss is **released**.
+- [09/2021] [Originator's Work] The **code** of Focal Frequency Loss is **released**.
 
-- [07/2021] The [paper](https://arxiv.org/abs/2012.12821) of Focal Frequency Loss is accepted by **ICCV 2021**.
+- [07/2021] [Originator's Work] The [paper](https://arxiv.org/abs/2012.12821) detailing Focal Frequency Loss is accepted by **ICCV 2021**.
+
+- [11/2024] [Our Project Work] Our modifications + extensions to the VQVAE model + FFL implementation are provided **here**.Includes WaveletLoss and CNNLoss implementations. 
 
 ## Quick Start
 
-Run `pip install focal-frequency-loss` for installation. Then, the following code is all you need.
+Standalone loss classes are available as pip-installable packages at **j-muoneke/image-losses**
 
-```python
-from focal_frequency_loss import FocalFrequencyLoss as FFL
-ffl = FFL(loss_weight=1.0, alpha=1.0)  # initialize nn.Module class
-
-import torch
-fake = torch.randn(4, 3, 64, 64)  # replace it with the predicted tensor of shape (N, C, H, W)
-real = torch.randn(4, 3, 64, 64)  # replace it with the target tensor of shape (N, C, H, W)
-
-loss = ffl(fake, real)  # calculate focal frequency loss
-```
-
-**Tips:** 
-
-1. Current supported PyTorch version: `torch>=1.1.0`. Warnings can be ignored. Please note that experiments in the paper were conducted with `torch<=1.7.1,>=1.1.0`.
-2. Arguments to initialize the `FocalFrequencyLoss` class:
-	- `loss_weight (float)`: weight for focal frequency loss. Default: 1.0
-	- `alpha (float)`: the scaling factor alpha of the spectrum weight matrix for flexibility. Default: 1.0
-	- `patch_factor (int)`: the factor to crop image patches for patch-based focal frequency loss. Default: 1
-	- `ave_spectrum (bool)`: whether to use minibatch average spectrum. Default: False
-	- `log_matrix (bool)`: whether to adjust the spectrum weight matrix by logarithm. Default: False
-	- `batch_matrix (bool)`: whether to calculate the spectrum weight matrix using batch-based statistics. Default: False
-3. Experience shows that the main hyperparameters you need to adjust are `loss_weight` and `alpha`. The loss weight may always need to be adjusted first. Then, a larger alpha indicates that the model is more focused. We use `alpha=1.0` as default.
-
-## Exmaple: Image Reconstruction (Vanilla AE)
-
-As a guide, we provide an example of applying the proposed focal frequency loss (FFL) for Vanilla AE image reconstruction on CelebA. Applying FFL is pretty easy. The core details can be found [here](https://github.com/EndlessSora/focal-frequency-loss/blob/master/VanillaAE/models.py).
-
-### Installation
-
-After installing [Anaconda](https://www.anaconda.com/), we recommend you to create a new conda environment with python 3.8.3:
-
-```bash
-conda create -n ffl python=3.8.3 -y
-conda activate ffl
-```
-
-Clone this repo, install PyTorch 1.4.0 (`torch>=1.1.0` may also work) and other dependencies:
+To get a copy of this repository, perform the following steps:
 
 ```bash
 git clone https://github.com/EndlessSora/focal-frequency-loss.git
@@ -64,15 +30,65 @@ cd focal-frequency-loss
 pip install -r VanillaAE/requirements.txt
 ```
 
-### Dataset Preparation
+## Example - Initialising + Using Losses
 
-In this example, please download [img\_align\_celeba.zip](https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing&resourcekey=0-dYn9z10tMJOBAkviAcfdyQ) of the CelebA dataset from its [official website](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html). Then, we highly recommend you to unzip this file and symlink the `img_align_celeba` folder to `./datasets/celeba` by:
+```python
+from focal_frequency_loss import FocalFrequencyLoss as FFL
+from wavelet_loss import WaveletLoss as WVL
+from cnn_loss import CNNLoss as CNNL
 
-```bash
-bash scripts/datasets/prepare_celeba.sh [PATH_TO_IMG_ALIGN_CELEBA]
+# [WaveletLoss example] initialise nn.Module class
+# High- and low-band weights	 	specified with w0 | w1 ( float )
+# Single-level calc			specified with level   ( int )
+# An internal loss function		specified with loss_fn ( nn.Module )
+# Wavelet function set 			specified with wavelet (string | pywt Wavelet object)
+wvl = WVL(wavelet='haar', level=1, loss_fn=nn.MSELoss(), w0=0.001, w1=0.01)
+
+
+# [FFLoss Example] initialize nn.Module class
+# Relative loss weight			specified with loss_weight 	( float ) 
+# No loss exponentiation		specified with alpha 		( float )
+# Whole image + 4x4 patch loss 		specified with patch_factors 	( List[int] )
+ffl = FFL(loss_weight=1.0, alpha=1.0, patch_factors = [1,4])
+
+# [CNNLoss Example] initialize nn.Module class
+# With early- and mid-feature 		specified with  w0 | w1 ( float )
+# 
+cnnl = CNNL(model = "Resnet50", w0 = 0.1, w1 = 0.1)
+
+
+import torch
+fake = torch.randn(4, 3, 64, 64)  # replace it with the predicted tensor of shape (N, C, H, W)
+real = torch.randn(4, 3, 64, 64)  # replace it with the target tensor of shape (N, C, H, W)
+
+losses = [ffl, wvl, cnnl]
+for loss in losses:
+	# Calculate loss values
+	print(loss(fake, real))
 ```
 
-Or you can simply move the `img_align_celeba` folder to `./datasets/celeba`. The resulting directory structure should be:
+**Tips:** 
+
+1. Current supported PyTorch version: `torch>=1.7.0`. Warnings can be ignored. Please note that experiments in the paper were conducted with `torch<=2.0.0,>=1.7.0`.
+2. Arguments to initialize the `FocalFrequencyLoss` class:
+	- `loss_weight (float)`: weight for focal frequency loss. Default: 1.0
+	- `alpha (float)`: the scaling factor alpha of the spectrum weight matrix for flexibility. Default: 1.0
+	- `patch_factor (int)`: the factor to crop image patches for patch-based focal frequency loss. Default: 1
+	- `ave_spectrum (bool)`: whether to use minibatch average spectrum. Default: False
+	- `log_matrix (bool)`: whether to adjust the spectrum weight matrix by logarithm. Default: False
+	- `batch_matrix (bool)`: whether to calculate the spectrum weight matrix using batch-based statistics. Default: False
+ 	- `patch_factors (List[int])`: the list of image subdivisions levels to use for patch-based FFL. Must be factors of model imageSize. Default: [1] 
+3. Originators' experience + findings shows that the main hyperparameters to adjust are `loss_weight` and `alpha`. The loss weight may always need to be adjusted first. Then, a larger alpha indicates that the model is more focused. We use `alpha=1.0` as default.
+4. From our own experience, patch-based losses appear to be most effective with a single patching factor (if image sizes are power-2-divisible, preferences should be 1, 2, 4 or 8).
+
+The core details for baseline FFL can be found [here](https://github.com/EndlessSora/focal-frequency-loss/blob/master/VanillaAE/models.py).
+Attempts to apply these modifications to an **Image Translation** net (Pix2Pix) can be found [here](https://github.com/George-Ogden/translation-frequency-rectification)
+
+### Dataset Preparation
+
+We've sourced a cropped, face-aligned version of the CelebFaces dataset prepared by the originators here: [img\_align\_celeba.zip](https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing&resourcekey=0-dYn9z10tMJOBAkviAcfdyQ)
+[official website](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
+Variants of this dataset should go in their own folder (for this example, inside `datasets/celeba/img_align_celeba`). See below as an example:
 
 ```
 ├── datasets
@@ -83,85 +99,42 @@ Or you can simply move the `img_align_celeba` folder to `./datasets/celeba`. The
 │    │    │    ├── 000003.jpg
 │    │    │    ├── ...
 ```
+We've also used a normed version of the Describable Textures Dataset [DTD](https://www.robots.ox.ac.uk/~vgg/data/dtd/)
 
-### Test and Evaluation Metrics
+### Testing
 
 Download the [pretrained models](https://drive.google.com/file/d/1YIH09eoDyP2JLmiYJpju4hOkVFO7M3b_/view?usp=sharing) and unzip them to `./VanillaAE/experiments`.
 
-We have provided the example [test scripts](https://github.com/EndlessSora/focal-frequency-loss/tree/master/scripts/VanillaAE/test). If you only have a CPU environment, please specify `--no_cuda` in the script. Run:
+Along with originator examples, we've provided some more [test scripts](https://github.com/George-Ogden/reconstruction-frequency-rectification/tree/master/scripts/VQVAE/test). 
+If you only have a CPU environment, please specify `--no_cuda` in the script. Run:
 
 ```bash
-bash scripts/VanillaAE/test/celeba_recon_wo_ffl.sh
-bash scripts/VanillaAE/test/celeba_recon_w_ffl.sh
+bash scripts/VQVAE/test/celeba_recon_wo_ffl.sh
+bash scripts/VQVAE/test/celeba_recon_w_ffl.sh
 ```
 
-The Vanilla AE image reconstruction results will be saved at `./VanillaAE/results` by default.
-
-After testing, you can further calculate the evaluation metrics for this example. We have implemented a series of [evaluation metrics](https://github.com/EndlessSora/focal-frequency-loss/tree/master/metrics) we used and provided the [metric scripts](https://github.com/EndlessSora/focal-frequency-loss/tree/master/scripts/VanillaAE/metrics). Run:
-
-```bash
-bash scripts/VanillaAE/metrics/celeba_recon_wo_ffl.sh
-bash scripts/VanillaAE/metrics/celeba_recon_w_ffl.sh
-```
-
-You will see the scores of different metrics. The metric logs will be saved in the respective experiment folders at `./VanillaAE/results`.
+Any image reconstruction results will be saved at `./VQVAE/results` by default.
 
 ### Training
 
-We have provided the example [training scripts](https://github.com/EndlessSora/focal-frequency-loss/tree/master/scripts/VanillaAE/train). If you only have a CPU environment, please specify `--no_cuda` in the script. Run:
+Originators have provided example [training scripts](https://github.com/EndlessSora/focal-frequency-loss/tree/master/scripts/VanillaAE/train), which we have modified to observe baseline training for VQVAE. 
+To recreate our experiments and hyperparameter tuning, we've also provided an exemplar [parameter sweep script](https://github.com/George-Ogden/reconstruction-frequency-rectification/blob/master/scripts/VQVAE/train/celeba_recon_wave_sweep.sh)
+For CPU-only environments please specify `--no_cuda` in the script. Run:
 
 ```bash
-bash scripts/VanillaAE/train/celeba_recon_wo_ffl.sh
-bash scripts/VanillaAE/train/celeba_recon_w_ffl.sh 
+bash scripts/VQVAE/train/celeba_recon_wo_ffl.sh
+bash scripts/VQVAE/train/celeba_recon_w_ffl.sh 
+bash scripts/VQVAE/train/celeba_recon_wave_sweep.sh
 ```
 
-After training, inference on the newly trained models is similar to [Test and Evaluation Metrics](#test-and-evaluation-metrics). The results could be better reproduced on NVIDIA Tesla V100 GPUs with `torch<=1.7.1,>=1.1.0`.
+## Metrics
 
-## More Results
-
-Here, we show other examples of applying the proposed focal frequency loss (FFL) under diverse settings.
-
-### Image Reconstruction (VAE)
-
-![reconvae](https://raw.githubusercontent.com/EndlessSora/focal-frequency-loss/master/resources/reconvae.jpg)
-
-### Image-to-Image Translation (pix2pix | SPADE)
-
-![consynI2I](https://raw.githubusercontent.com/EndlessSora/focal-frequency-loss/master/resources/consynI2I.jpg)
-
-### Unconditional Image Synthesis (StyleGAN2)
-
-256x256 results (without truncation) and the mini-batch average spectra (adjusted to better contrast):
-
-![unsynsg2res256](https://raw.githubusercontent.com/EndlessSora/focal-frequency-loss/master/resources/unsynsg2res256.jpg)
-
-1024x1024 results (without truncation) synthesized by StyleGAN2 with FFL:
-
-![unsynsg2res1024](https://raw.githubusercontent.com/EndlessSora/focal-frequency-loss/master/resources/unsynsg2res1024.jpg)
-
-## Citation
-
-If you find this work useful for your research, please cite our paper:
-
-```
-@inproceedings{jiang2021focal,
-  title={Focal Frequency Loss for Image Reconstruction and Synthesis},
-  author={Jiang, Liming and Dai, Bo and Wu, Wayne and Loy, Chen Change},
-  booktitle={ICCV},
-  year={2021}
-}
-```
+We've added scripts and Python methods for regenerating the plots and images seen in our Report.
+These can be found and used [here](https://github.com/George-Ogden/reconstruction-frequency-rectification/tree/master/scripts/VQVAE/metrics) after running the train/test scripts for the the relevant model
 
 ## Acknowledgments
 
 The code of Vanilla AE is inspired by [PyTorch DCGAN](https://github.com/pytorch/examples/tree/master/dcgan) and [MUNIT](https://github.com/NVlabs/MUNIT). Part of the evaluation metric code is borrowed from [MMEditing](https://github.com/open-mmlab/mmediting). We also apply [LPIPS](https://github.com/richzhang/PerceptualSimilarity) and [pytorch-fid](https://github.com/mseitzer/pytorch-fid) as evaluation metrics.
+Full credit is given to originators for baseline [VQVAE model and frequency loss](https://github.com/EndlessSora/focal-frequency-loss) implementations
 
 ## License
-
-All rights reserved. The code is released under the [MIT License](https://github.com/EndlessSora/focal-frequency-loss/blob/master/LICENSE.md).
-
-Copyright (c) 2021
-
-## Other Implementations
-
-[[**Unofficial TensorFlow Implementation**](https://github.com/ZohebAbai/tf-focal-frequency-loss)] by [ZohebAbai](https://github.com/ZohebAbai)

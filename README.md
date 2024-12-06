@@ -16,18 +16,18 @@ In ICCV 2021.<br>
 
 - [07/2021] [Originator's Work] The [paper](https://arxiv.org/abs/2012.12821) detailing Focal Frequency Loss is accepted by **ICCV 2021**.
 
-- [11/2024] [Our Project Work] Our modifications + extensions to the VQVAE model + FFL implementation are provided **here**.Includes WaveletLoss and CNNLoss implementations. 
+- [11/2024] [Our Project Work] Our modifications + extensions to the VQVAE model + FFL implementation are provided **here**. Includes WaveletLoss and CNNLoss implementations. 
 
 ## Quick Start
 
-Standalone loss classes are available as pip-installable packages at **j-muoneke/image-losses**
+Standalone loss classes are available as pip-installable packages at [**j-muoneke/image-losses**](https://github.com/j-muoneke/image-losses)
 
 To get a copy of this repository, perform the following steps:
 
 ```bash
-git clone https://github.com/EndlessSora/focal-frequency-loss.git
-cd focal-frequency-loss
-pip install -r VanillaAE/requirements.txt
+git clone https://github.com/George-Ogden/reconstruction-frequency-rectification.git
+cd reconstruction-frequency-rectification
+pip install -r VQVAE/requirements.txt
 ```
 
 ## Example - Initialising + Using Losses
@@ -52,37 +52,20 @@ wvl = WVL(wavelet='haar', level=1, loss_fn=nn.MSELoss(), w0=0.001, w1=0.01)
 ffl = FFL(loss_weight=1.0, alpha=1.0, patch_factors = [1,4])
 
 # [CNNLoss Example] initialize nn.Module class
-# With early- and mid-feature 		specified with  w0 | w1 ( float )
-# 
+# With early- and mid-feature weights 	specified with  w0 | w1 ( float )
+# ResNet50 as extractor net		specified with model 	( string )
 cnnl = CNNL(model = "Resnet50", w0 = 0.1, w1 = 0.1)
 
-
+# Fabricate data
 import torch
 fake = torch.randn(4, 3, 64, 64)  # replace it with the predicted tensor of shape (N, C, H, W)
 real = torch.randn(4, 3, 64, 64)  # replace it with the target tensor of shape (N, C, H, W)
 
 losses = [ffl, wvl, cnnl]
 for loss in losses:
-	# Calculate loss values
+	# Calc + print loss values
 	print(loss(fake, real))
 ```
-
-**Tips:** 
-
-1. Current supported PyTorch version: `torch>=1.7.0`. Warnings can be ignored. Please note that experiments in the paper were conducted with `torch<=2.0.0,>=1.7.0`.
-2. Arguments to initialize the `FocalFrequencyLoss` class:
-	- `loss_weight (float)`: weight for focal frequency loss. Default: 1.0
-	- `alpha (float)`: the scaling factor alpha of the spectrum weight matrix for flexibility. Default: 1.0
-	- `patch_factor (int)`: the factor to crop image patches for patch-based focal frequency loss. Default: 1
-	- `ave_spectrum (bool)`: whether to use minibatch average spectrum. Default: False
-	- `log_matrix (bool)`: whether to adjust the spectrum weight matrix by logarithm. Default: False
-	- `batch_matrix (bool)`: whether to calculate the spectrum weight matrix using batch-based statistics. Default: False
- 	- `patch_factors (List[int])`: the list of image subdivisions levels to use for patch-based FFL. Must be factors of model imageSize. Default: [1] 
-3. Originators' experience + findings shows that the main hyperparameters to adjust are `loss_weight` and `alpha`. The loss weight may always need to be adjusted first. Then, a larger alpha indicates that the model is more focused. We use `alpha=1.0` as default.
-4. From our own experience, patch-based losses appear to be most effective with a single patching factor (if image sizes are power-2-divisible, preferences should be 1, 2, 4 or 8).
-
-The core details for baseline FFL can be found [here](https://github.com/EndlessSora/focal-frequency-loss/blob/master/VanillaAE/models.py).
-Attempts to apply these modifications to an **Image Translation** net (Pix2Pix) can be found [here](https://github.com/George-Ogden/translation-frequency-rectification)
 
 ### Dataset Preparation
 
@@ -103,7 +86,7 @@ We've also used a normed version of the Describable Textures Dataset [DTD](https
 
 ### Testing
 
-Download the [pretrained models](https://drive.google.com/file/d/1YIH09eoDyP2JLmiYJpju4hOkVFO7M3b_/view?usp=sharing) and unzip them to `./VanillaAE/experiments`.
+Download the [pretrained models](https://drive.google.com/file/d/1YIH09eoDyP2JLmiYJpju4hOkVFO7M3b_/view?usp=sharing) and unzip them to `./VQVAE/experiments`.
 
 Along with originator examples, we've provided some more [test scripts](https://github.com/George-Ogden/reconstruction-frequency-rectification/tree/master/scripts/VQVAE/test). 
 If you only have a CPU environment, please specify `--no_cuda` in the script. Run:
@@ -136,5 +119,6 @@ These can be found and used [here](https://github.com/George-Ogden/reconstructio
 
 The code of Vanilla AE is inspired by [PyTorch DCGAN](https://github.com/pytorch/examples/tree/master/dcgan) and [MUNIT](https://github.com/NVlabs/MUNIT). Part of the evaluation metric code is borrowed from [MMEditing](https://github.com/open-mmlab/mmediting). We also apply [LPIPS](https://github.com/richzhang/PerceptualSimilarity) and [pytorch-fid](https://github.com/mseitzer/pytorch-fid) as evaluation metrics.
 Full credit is given to originators for baseline [VQVAE model and frequency loss](https://github.com/EndlessSora/focal-frequency-loss) implementations
+Inspiration for methods mainly derivated from [FrePolad](https://github.com/Chenliang-Zhou/FrePolad), a point-cloud diffusion model. Guidance on changes and approaches to loss formulation was kindly provided by one of its authors. 
 
 ## License

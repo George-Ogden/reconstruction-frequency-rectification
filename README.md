@@ -117,6 +117,12 @@ These can be found and used [here](https://github.com/George-Ogden/reconstructio
 
 ## Acknowledgments
 
-The code of Vanilla AE is inspired by [PyTorch DCGAN](https://github.com/pytorch/examples/tree/master/dcgan) and [MUNIT](https://github.com/NVlabs/MUNIT). Part of the evaluation metric code is borrowed from [MMEditing](https://github.com/open-mmlab/mmediting). We also apply [LPIPS](https://github.com/richzhang/PerceptualSimilarity) and [pytorch-fid](https://github.com/mseitzer/pytorch-fid) as evaluation metrics.
-Full credit is given to originators for baseline [VQVAE model and frequency loss](https://github.com/EndlessSora/focal-frequency-loss) implementations
-Inspiration for methods mainly derivated from [FrePolad](https://github.com/Chenliang-Zhou/FrePolad), a point-cloud diffusion model. Guidance on changes and approaches to loss formulation was kindly provided by one of its authors. 
+[Originators]
+*The code of Vanilla AE is inspired by [PyTorch DCGAN](https://github.com/pytorch/examples/tree/master/dcgan) and [MUNIT](https://github.com/NVlabs/MUNIT).
+Part of the evaluation metric code is borrowed from [MMEditing](https://github.com/open-mmlab/mmediting). 
+We also apply [LPIPS](https://github.com/richzhang/PerceptualSimilarity) and [pytorch-fid](https://github.com/mseitzer/pytorch-fid) as evaluation metrics.*
+
+[Our Project]
+*Full credit is given to originators for baseline [VQVAE model and frequency loss](https://github.com/EndlessSora/focal-frequency-loss) implementations.
+Inspiration for methods we used was derivated in no small part from [FrePolad](https://github.com/Chenliang-Zhou/FrePolad), a point-cloud diffusion model. 
+Guidance on changes and approaches to loss formulation was kindly provided by one of its authors.*

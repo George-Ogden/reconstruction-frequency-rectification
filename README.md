@@ -52,8 +52,8 @@ wvl = WVL(wavelet='haar', level=1, loss_fn=nn.MSELoss(), w0=0.001, w1=0.01)
 ffl = FFL(loss_weight=1.0, alpha=1.0, patch_factors = [1,4])
 
 # [CNNLoss Example] initialize nn.Module class
-# With early- and mid-feature 		specified with  w0 | w1 ( float )
-# 
+# With early- and mid-feature weights 	specified with  w0 | w1 ( float )
+# ResNet50 as extractor net		specified with model 	( string )
 cnnl = CNNL(model = "Resnet50", w0 = 0.1, w1 = 0.1)
 
 # Fabricate data
@@ -119,5 +119,6 @@ These can be found and used [here](https://github.com/George-Ogden/reconstructio
 
 The code of Vanilla AE is inspired by [PyTorch DCGAN](https://github.com/pytorch/examples/tree/master/dcgan) and [MUNIT](https://github.com/NVlabs/MUNIT). Part of the evaluation metric code is borrowed from [MMEditing](https://github.com/open-mmlab/mmediting). We also apply [LPIPS](https://github.com/richzhang/PerceptualSimilarity) and [pytorch-fid](https://github.com/mseitzer/pytorch-fid) as evaluation metrics.
 Full credit is given to originators for baseline [VQVAE model and frequency loss](https://github.com/EndlessSora/focal-frequency-loss) implementations
+Inspiration for methods mainly derivated from [FrePolad](https://github.com/Chenliang-Zhou/FrePolad), a point-cloud diffusion model. Guidance on changes and approaches to loss formulation was kindly provided by one of its authors. 
 
 ## License
